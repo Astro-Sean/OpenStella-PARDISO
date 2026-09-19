@@ -615,10 +615,10 @@ REAL*8 XMOD,ERREST,ERROLD;
       endif;
       */
 
-      call y12mff(N,ajac,icn,nn,irn,nn1,a1,sn,nzmod,ha,iha,
-                  FSAVE(NYDIM+1),b1,XSAVE,ysave,aflag,iflag,ifail);
+      call pardiso_solve(N,ajac,irn,icn,nzmod,
+                  FSAVE(NYDIM+1),XSAVE,ifail);
                   -- RHS in FSAVE(NYDIM+1), solution in XSAVE
-      write(*,*)'Y12MFF error flag IFAIL=',ifail;
+      write(*,*)'PARDISO error flag IFAIL=',ifail;
 /*
       write(*,*)'Y12MFF state=',iflag(5);
       write(*,*)'k iterations=',iflag(12);

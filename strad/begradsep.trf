@@ -798,6 +798,7 @@ _until kio^=0;
     Character*80 NFILE*80;
     _INCLUDEN snrad;
     _INCLUDEN abo;
+    Common/FRAD/FRADJ(Mzon,Nfreq),FRADH(Mzon,Nfreq);
     if(NSTB<0)then;
       Lunit=10;
       NFILE=Sumprf;
@@ -816,6 +817,40 @@ _until kio^=0;
     endif;
     call StradIO('wc',Lunit,NFILE);
     --close(Lunit);
+--
+--  Write Eddington factors and radiation moments to .edd file
+--  Format: binary, Fortran unformatted
+--  Record 1: t, NSTEP, NZON, NCND, NFRUS, KRAD
+--  Record 2: UFREQ, UTP, URM, UV, URHO, UM, UTIME
+--  Record 3: FREQMN(1:NFRUS)
+--  Record 4: WEIGHT(1:NFRUS)
+--  Record 5: EddN(K,L) for K=NCND+1..NZON, L=1..NFRUS (freq-major)
+--  Record 6: FRADJ(K,L) for K=NCND+1..NZON, L=1..NFRUS
+--  Record 7: FRADH(K,L) for K=NCND+1..NZON, L=1..NFRUS
+--  Record 8: HEdN(1:NFRUS)
+--  Record 9: Ry(1:NZON), Uy(1:NZON), Ty(1:NZON)
+--
+    if(NSTB<0)then;
+      Lunit=14;
+      NFILE=Sumprf(1:index(Sumprf,' ')-1)//'.edd';
+    else;
+      Lunit=15;
+      NFILE='test.edd';
+    endif;
+    OPEN(Lunit,FILE=NFILE,FORM='UNFORMATTED',STATUS='unknown');
+    WRITE(Lunit) t, NSTEP, NZON, NCND, NFRUS, KRAD;
+    WRITE(Lunit) UFREQ, UTP, URM, UV, URHO, UM, UTIME;
+    WRITE(Lunit) (FREQMN(L), L=1,NFRUS);
+    WRITE(Lunit) (WEIGHT(L), L=1,NFRUS);
+    WRITE(Lunit) ((EddN(K,L),K=NCND+1,NZON),L=1,NFRUS);
+    WRITE(Lunit) ((FRADJ(K,L),K=NCND+1,NZON),L=1,NFRUS);
+    WRITE(Lunit) ((FRADH(K,L),K=NCND+1,NZON),L=1,NFRUS);
+    WRITE(Lunit) (HEdN(L), L=1,NFRUS);
+    WRITE(Lunit) (Ry(K),K=1,NZON);
+    WRITE(Lunit) (Uy(K),K=1,NZON);
+    WRITE(Lunit) (Ty(K),K=1,NZON);
+    CLOSE(Lunit);
+    write(*,*)' SAVEM: wrote .edd file with EddN, FRADJ, FRADH';
     RETURN;
   END SUBROUTINE @SAVE_MODEL;
 

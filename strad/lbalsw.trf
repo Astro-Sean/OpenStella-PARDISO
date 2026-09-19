@@ -619,21 +619,32 @@ IMPLICIT REAL*8(A-H,O-Z);
 --    QRTLG=LOG10(max(1.D-50, QRTarr(km)*UP)); -- in place of eng
     <*extmass: calculate AMPR - mass in external layers via dm() *>;
     PL=RHO(Km); Tp=Ty(Km); -- CHEM=CHEM0(Km);
+    _Do ii=1, Natom [ Yat(ii)=YABUN(ii,Km) ];
+    RADP=.FALSE.;
+    CALL URSOS;
+    barionn=rho(km)*Urho*Avogar;
     If(Km==1 .or. Km==Nzon)then;
         WRITE(81,181)(tout-tretard)*(UTIME*CRAP)/86400.D0, -- t in days
           -- tout*Utime/8.64d4,
         Km,log10(AMPR),log10(UR*Ry(Km)),Uy(Km)*1.D+6/(UTIME*CRAP),
         log10(max(UTP*Ty(Km),1.d0)),log10(max(UTP*TpRAD,1.d0)),
-        PLLOG,PLOG,QVLOG,log10(max(eng,1.d-50)),Flum*1.d-40,WRKX(Km);
+        PLLOG,PLOG,QVLOG,log10(max(eng,1.d-50)),Flum*1.d-40,WRKX(Km)
+        ,barionn,Xe*barionn, (YABUN(ii,Km)*AZ(ii),ii=1,Natom);
+        -- n_bar, n_e (cm^{-3}), composition (15 mass fractions X_k=Y_k*A_k)
     else;
     WRITE(81,281) 0,
         Km,log10(AMPR),log10(UR*Ry(Km)),Uy(Km)*1.D+6/(UTIME*CRAP),
         log10(max(UTP*Ty(Km),1.d0)),log10(max(UTP*TpRAD,1.d0)),
-        PLLOG,PLOG,QVLOG,log10(max(eng,1.d-50)),Flum*1.d-40,WRKX(Km);
+        PLLOG,PLOG,QVLOG,log10(max(eng,1.d-50)),Flum*1.d-40,WRKX(Km)
+        ,barionn,Xe*barionn, (YABUN(ii,Km)*AZ(ii),ii=1,Natom);
+        -- n_bar, n_e (cm^{-3}), composition (15 mass fractions X_k=Y_k*A_k)
     endif;
 -- 181:FORMAT(1X,F10.2,I5,F12.6,F14.7,F9.4,6F9.3,1P,2E11.3); -- for secs
-181:FORMAT(1X,F10.6,I5,F12.6,F14.7,F9.4,6F9.3,1P,2E11.3); -- for days
-281:FORMAT(10X, i1, I5,F12.6,F14.7,F9.4,6F9.3,1P,2E11.3);
+181:FORMAT(1X,F10.6,I5,F12.6,F14.7,F9.4,6F9.3,1P,4E11.3,15E15.6); -- for days, +n_bar,n_e,+composition
+281:FORMAT(10X, i1, I5,F12.6,F14.7,F9.4,6F9.3,1P,4E11.3,15E15.6); -- +n_bar,n_e,+composition
+-- 182:FORMAT(1X,F10.6,I5,16E15.6) -- time, zone, 16 elements (composition)
+182:FORMAT(10X,i1,I5,16E15.6)
+-- 282:FORMAT(10X,i1,I5,16E15.6)
 
 
 %PA_Pre.P:

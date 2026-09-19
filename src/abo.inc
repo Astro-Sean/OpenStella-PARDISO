@@ -22,7 +22,7 @@ _Define
  PARAMETER(TMCRIT=1.D-6,TPNSE=5.D0,EPGROW=0.02D0);
  Common/RUTP/Ry(Mzon),Uy(Mzon),Ty(Mzon),Press(Mzon),Rho(Mzon);
  COMMON/TOO/TOO,KO,KNTO,TO(KOMAX),STO(KOMAX),NTO(KOMAX);
- Parameter(Lcurdm=1000); -- Dimension of the Tcurv array
+ Parameter(Lcurdm=200000); -- Dimension of the Tcurv array
  Real Tcurv;
  Integer NFRUSED; -- an integer array which store exact number of used freqs
  REAL*8 Flsave; -- remove this to read old flx files!

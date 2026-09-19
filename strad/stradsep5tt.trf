@@ -114,6 +114,7 @@ PROGRAM STELLA;    -- CALCULATE STELLAR MODEL
     Common/Volanm/Ryzer,Kmcor;  -- emulate Ni for analyt.model
     PARAMETER(NzMIN=Mzon*5/6);    -- minimum Nzon - number of mass zones
     PARAMETER(NCNMIN=5);    -- minimum Ncnd - number of conduction zones
+    PARAMETER(NCN_JUMP=20);  -- max Ncnd decrease per step for solver stability
     Parameter(TREZON=3.D18); -- allow rezoning after Trezon (sec)
 --    Parameter(TREZON=3.D1); -- allow rezoning after Trezon (sec)
     Parameter(tsmoth=4.D6); -- smoothing/forced Ncnd=0 (sec, proper tim)
@@ -479,6 +480,7 @@ end;
           NSTEP,MAXER,NQUSED,' Hu=',HUSED,' Ro=',Rho(1),
           ' td=',tday,' Ncnd=',Ncnd,' Tau=',TAU(max(Ncnd,1));
   IF(Ncnew<NCNMIN) Ncnew=0;
+  IF(Ncnew>0 .AND. Ncnew<Ncnd-NCN_JUMP) Ncnew=Ncnd-NCN_JUMP;
 --If(Ncnew<NCNMIN .or. t*Utime>tsmoth) Ncnew=0; -- force Ncnd=0
   Ncnew=MIN(Ncnew,@NCOND_MAX);
   HOLDFR=.TRUE.;  -- forbids the decrease of NFRUS  if there is no
@@ -1152,6 +1154,7 @@ end;
           NSTEP,MAXER,NQUSED,' Hu=',HUSED,' Ro=',Rho(1),
           ' td=',tday,' Ncnd=',Ncnd,' Tau=',TAU(max(Ncnd,1));
   IF(Ncnew<NCNMIN) Ncnew=0;
+  IF(Ncnew>0 .AND. Ncnew<Ncnd-NCN_JUMP) Ncnew=Ncnd-NCN_JUMP;
 --If(Ncnew<NCNMIN .or. t*Utime>tsmoth) Ncnew=0; -- force Ncnd=0
   Ncnew=MIN(Ncnew,@NCOND_MAX);
   HOLDFR=.TRUE.;  -- forbids the decrease of NFRUS  if there is no

@@ -1,0 +1,36 @@
+# Build artifacts
+*.o
+*.mod
+bin/xstella.exe
+run/strad/xstella6new.exe
+obj/*.inc
+*.lst
+
+# STELLA run products
+*.swd
+*.swd_rad
+*.tt
+*.flx
+*.lbol
+*.ph
+*.res
+*.bm
+*.balance
+*.prf
+*.crv
+*.dep
+*.av
+*.mod.edd
+*.log
+*.out
+*.err
+strad.1
+
+# PARDISO dumps / diagnostics
+pardiso_dump_*.dat
+pardiso_badmat_*.dat
+
+# Editor / OS
+*.swp
+*~
+.DS_Store
