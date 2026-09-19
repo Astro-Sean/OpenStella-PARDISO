@@ -1,0 +1,28 @@
+Type IIn validation -- OpenStella Y12M vs PARDISO
+
+inputs (.swd):
+  Y12M: /viper/ptmp1/sbrennan/SN2024pba/validation/TypeIIn_Y12M/stella/TypeIIn_Y12M.swd
+  P1: /viper/ptmp1/sbrennan/SN2024pba/validation/TypeIIn_P1/stella/TypeIIn_P1.swd
+  P2: /viper/ptmp1/sbrennan/SN2024pba/validation/TypeIIn_P2/stella/TypeIIn_P2.swd
+  P3: /viper/ptmp1/sbrennan/SN2024pba/validation/TypeIIn_P3/stella/TypeIIn_P3.swd
+
+SLURM jobs:
+  Y12M (job 11811752):
+    11811752     TypeIIn_Y+   05:57:08      0:0  COMPLETED
+  P1 (job 11811764):
+    11811764     TypeIIn_P+   01:30:32      0:0  COMPLETED
+  P2 (job 11811767):
+    11811767     TypeIIn_P+   01:32:49      0:0  COMPLETED
+  P3 (job 11811768):
+    11811768     TypeIIn_P+   01:13:18      0:0  COMPLETED
+
+profile agreement (max abs difference in dex):
+epoch t = -3.82 d
+  P1 vs Y12M  max|dlog10|  rho: 0.0000 dex  v: 0.0000 dex  Tgas: 0.0000 dex
+  P3 vs Y12M  max|dlog10|  rho: 0.0000 dex  v: 0.0000 dex  Tgas: 0.0000 dex
+epoch t = 27.51 d
+  P1 vs Y12M  max|dlog10|  rho: 0.0742 dex  v: 0.0222 dex  Tgas: 0.0762 dex
+  P3 vs Y12M  max|dlog10|  rho: 0.0714 dex  v: 0.0220 dex  Tgas: 0.0800 dex
+epoch t = 56.18 d
+  P1 vs Y12M  max|dlog10|  rho: 0.0070 dex  v: 0.0012 dex  Tgas: 0.0019 dex
+  P3 vs Y12M  max|dlog10|  rho: 0.0443 dex  v: 0.0087 dex  Tgas: 0.0037 dex

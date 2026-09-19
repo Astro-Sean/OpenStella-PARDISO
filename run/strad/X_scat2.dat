@@ -1,0 +1,85 @@
+   EPS   (STIFF ACCURACY)   HMIN (MIN.STEP(SEC)) HMAX (MAX.STEP(SEC))
+   0.003                    1e-14               4.32e+04
+   METH  ADAMS(1)-GEAR(2)-GEAR+BGH(3)   JSTART  (0-START_ELSE_ORDER) MAXORD KNadap
+    3                        0                            4        -4
+   abs(NSTA)>abs(NSTB)=>reads last   TcurA     TcurB
+   -9000     -1                      0.0000   60.0000
+   NSTMAX  NDebug  NOUT    IOUT (0 -full <0 print zones)   MBATCH
+   2000000   100000  2000000      1                             900
+   AMNI (CONTAM. MASS)     XMNI (56NI MASS)
+   8.D-01                  0.0d0
+   AMHT(Solar)  EBurst(1e50) tBurst(s)  tstart -- Heated Core, Energy & time
+   0d0      0d0      10d0      0d0
+   EKO (kin.energy,1e50) mass fract.tri. u profile  us (out +1)
+   0d0                      0.d0  9.d-1  1.d0          +1.
+   THRMAT   CRAP     CONV     EDTM     CHNCND  Givdtl
+   1.D-30   1.D0     F        T        T       T
+   FLOOR(R) FLOOR(V) FLOOR(T) FLOOR(RADIAT)    FLOOR(UCONV)
+   1.D-12   1.D-03   0.002D+00   1.D-02           1.D-04
+   Wacc(R)  Wacc(V)  Wacc(T)  Wacc(RADIAT)
+   1d-0    1d-0    0.5D-00   1D-00
+   FitTau   TAUTOL   Rvis   AQ    BQ       DRT     NRT     SCAT
+   5.0D0   1.3D0     1.D0   2.D0  1.D+00   1.      1       T
+    NTO then    DATA TO
+    61
+    0.9836
+    1.9672
+    2.9508
+    3.9344
+    4.9180
+    5.9016
+    6.8852
+    7.8689
+    8.8525
+    9.8361
+    10.8197
+    11.8033
+    12.7869
+    13.7705
+    14.7541
+    15.7377
+    16.7213
+    17.7049
+    18.6885
+    19.6721
+    20.6557
+    21.6393
+    22.6230
+    23.6066
+    24.5902
+    25.5738
+    26.5574
+    27.5410
+    28.5246
+    29.5082
+    30.4918
+    31.4754
+    32.4590
+    33.4426
+    34.4262
+    35.4098
+    36.3934
+    37.3770
+    38.3607
+    39.3443
+    40.3279
+    41.3115
+    42.2951
+    43.2787
+    44.2623
+    45.2459
+    46.2295
+    47.2131
+    48.1967
+    49.1803
+    50.1639
+    51.1475
+    52.1311
+    53.1148
+    54.0984
+    55.0820
+    56.0656
+    57.0492
+    58.0328
+    59.0164
+    60.0000

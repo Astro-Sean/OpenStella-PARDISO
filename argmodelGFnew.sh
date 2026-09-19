@@ -50,8 +50,8 @@ Pause
  echo '******'
  #SYSTYPE="pgf"
  #SYSTYPE="MPA_f95i"
- #SYSTYPE="ifort"
-  SYSTYPE="gfortran"
+  SYSTYPE="ifort"
+ # SYSTYPE="gfortran"
  # SYSTYPE="cygwin_ifort"
  # SYSTYPE="cygwin_f90"
  # SYSTYPE="MPA_f95n"

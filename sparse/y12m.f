@@ -848,7 +848,7 @@ c
 c
 c  Use the information about fill-ins if it is possible.
 c
-      nr=n*n
+      nr=2000000000
       if(iflag(4).ne.2)go to 100
 
       if(iflag(10).le.nn) then
@@ -1732,7 +1732,7 @@ c
 c
 c  Use the information about fill-ins if it is possible.
 c
-      nr=n*n
+      nr=2000000000
       if(iflag(4).ne.2)go to 100
 
       if(iflag(10).le.nn) then
@@ -3806,7 +3806,7 @@ c
 c
 c  Use the information about fill-ins if it is possible.
 c
-      nr=n*n
+      nr=2000000000
       if(iflag(4).ne.2)go to 100
 
       if(iflag(10).le.nn) then
@@ -4670,7 +4670,7 @@ c
 c
 c  Use the information about fill-ins if it is possible.
 c
-      nr=n*n
+      nr=2000000000
       if(iflag(4).ne.2)go to 100
 
       if(iflag(10).le.nn) then

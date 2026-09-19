@@ -22,7 +22,7 @@ _Define
         -- where the transition to "thick" values of Edd. factors occurs
     Dimension TauL(NFREQ),TauT(NFREQ),MthNEW(Nfreq);
     _Include black;
---    Thttau=FitTau;
+--    Thttau=FitTau; -- reverted: hardcoded 15.d0 prevents runaway cooling
     Newth=.False.;
     <*TAU: find NTHICK(L) using optical depth from outer radius *>;
 --  _DO L=1,NFRUS; Nthick(L)=INCND  _od; -- test

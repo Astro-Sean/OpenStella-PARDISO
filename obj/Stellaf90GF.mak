@@ -10,9 +10,9 @@
 #  SYSTYPE="pgf"
 #  SYSTYPE := "MPA_f95i"
 #endif
-# SYSTYPE="ifort"
+SYSTYPE="ifort"
 # SYSTYPE := "lf"
-SYSTYPE=gfortran
+# SYSTYPE=gfortran
 # SYSTYPE="cygwin_ifort"
 # SYSTYPE="cygwin_f90"
 # SYSTYPE="MPA_f95i"
@@ -30,12 +30,12 @@ ifeq ($(SYSTYPE),ifort)
 #   FFLAGS = -c -save -zero -O3 -fp-model strict
 #   FFLAGS = -c -O3 -save -zero -tpp7   -ip # -xW # -- optimize for Pentium
 #   FFLAGS =   -c -save -static -zero -O2 -fpe0 -traceback # -CB -traceback
- FFLAGS_FIX = -c -132 -save -zero -O3 -fp-model strict
+ FFLAGS_FIX = -c -132 -save -zero -O3 -fp-model strict -qopenmp
 #   FFLAGS_FIX = -c -save -zero -check bounds -g -traceback -debug inline-debug-info # -- for debug
   FFLAGS := -free
   FFLAGS := $(FFLAGS_FIX) $(FFLAGS)
 #define
-  FFLAGS := $(FFLAGS) -D__INTEL
+  FFLAGS := $(FFLAGS) -D__INTEL -I$(MKLROOT)/include
 
 #  FFLAGS = -c -save -zero -fpe0 -no-ftz  -check bounds -g -traceback # -- for debug
 #  FFLAGS = -c -save -zero -check bounds -g -inline_debug_info -traceback # -- for debug
@@ -44,7 +44,7 @@ ifeq ($(SYSTYPE),ifort)
   #LDFLAGS = -i-static
 #  LDFLAGS = -mcmodel=medium -shared-intel # for 64b
 #  FFLAGS = -c -save -fpe0 -g -CB -traceback -inline_debug_info  -DD
-  LIBS=
+  LIBS= -L$(MKLROOT)/lib/intel64 -lmkl_rt -lpthread -lm -ldl
   UnixOrWin := "unix"
 endif
 
@@ -268,14 +268,14 @@ FILES_RONF = ronfndec.trf bessi0.f bessk0ex.f \
 OBJS_RONF := $(patsubst %.f,%.o, $(FILES_RONF:.trf=.f)) \
         $(OBJS_base) $(OBJScross)
 
-FILES_TNR6Y12M = stradsep5tt.trf begradsep.trf cosetbgh.trf hcdfjrad.trf \
-        hcdfnrad.trf traneq.trf eddi.trf  gdepos6.trf nthnew.trf \
-        stiffbghY12m.trf lbalsw.trf stradio.trf \
-        vtimef90.trf sahaandd.trf ubv.trf obsubvri.trf \
-        tt4strad.trf begtt.trf lbol.trf \
-        burnc.trf volenpumnoint.trf hapsepnc.trf hcdhaph.trf \
-        oparon.trf length.trf words.trf azdat.trf y12m.f
-OBJSTNR6Y12M := $(patsubst %.f,%.o, $(FILES_TNR6Y12M:.trf=.f))
+FILES_TNR6Y12M = stradsep5tt.f begradsep.f cosetbgh.f hcdfjrad.f \
+        hcdfnrad.f traneq.f eddi.f  gdepos6.f nthnew.f \
+        stiffbghY12m.f lbalsw.f stradio.f \
+        vtimef90.f sahaandd.f ubv.f obsubvri.f \
+        tt4strad.f begtt.f lbol.f \
+        burnc.f volenpumnoint.f hapsepnc.f hcdhaph.f \
+        oparon.f length.f words.f azdat.f pardiso_wrap.f
+OBJSTNR6Y12M := $(FILES_TNR6Y12M:.f=.o)
 
 FILES_TNR6Y12Mold = stradsep5tt.trf begradsepOld.trf cosetbgh.trf hcdfjrad.trf \
         hcdfnrad.trf traneq.trf eddi.trf  gdepos6.trf nthnew.trf \
