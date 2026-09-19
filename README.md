@@ -192,3 +192,22 @@ Reproduce the figures with `validation/plot_validation.py` (reads the
 ## License
 
 GPLv3, same as upstream OpenStella. Original code by S. Blinnikov & O. Bartunov.
+
+### Citing STELLA
+
+If you use STELLA in a publication, please cite the original code papers:
+
+- Blinnikov & Bartunov 1993, A&A, 273, 106 -
+  [ADS](https://ui.adsabs.harvard.edu/abs/1993A%26A...273..106B/abstract) /
+  [arXiv:astro-ph/9309015](https://arxiv.org/abs/astro-ph/9309015)
+- Blinnikov, Eastman, Bartunov, Popolitov & Woosley 1998, ApJ, 496, 454 -
+  [ADS](https://ui.adsabs.harvard.edu/abs/1998ApJ...496..454B/abstract)
+- Blinnikov, Lundqvist, Bartunov, Nomoto & Iwamoto 2000, ApJ, 532, 1132 -
+  [ADS](https://ui.adsabs.harvard.edu/abs/2000ApJ...532.1132B/abstract) /
+  [arXiv:astro-ph/9911205](https://arxiv.org/abs/astro-ph/9911205)
+- Blinnikov et al. 2006, A&A, 453, 229 (STELLA vs SEDONA comparison) -
+  [ADS](https://ui.adsabs.harvard.edu/abs/2006A%26A...453..229B/abstract) /
+  [arXiv:astro-ph/0603036](https://arxiv.org/abs/astro-ph/0603036)
+
+The code is registered in the Astrophysics Source Code Library:
+[ascl:1108.013](https://ascl.net/1108.013).
