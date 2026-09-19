@@ -1,3 +1,0 @@
-#!/bin/bash
-export PATH="/ptmp/sbrennan/stella/OpenStella_parallel/bin:$PATH"
-exec "/ptmp/sbrennan/stella/OpenStella_parallel/bin/trf_real" "$@"
