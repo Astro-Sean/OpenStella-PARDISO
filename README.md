@@ -33,13 +33,11 @@ walks through compile -> inputs -> run -> plots end to end.
 
 ## Build
 
-`build_parallel.sh` detects the host and sets up the toolchain itself:
-
-- `viper*` / `raven*` (MPCDF): loads the site `intel` module (ifort + MKL)
-- anything else: sources `setvars.sh` from the standard oneAPI locations
-  (`/opt/intel/oneapi`, `$HOME/intel/oneapi`) if `MKLROOT` is not set
-- override detection with `STELLA_SITE=viper|raven|generic`
-- uses `ifx` automatically when `ifort` is not installed
+Requires Intel Fortran (`ifort` or `ifx`) and Intel MKL.
+`build_parallel.sh` sets up the toolchain itself: it sources `setvars.sh`
+from the standard oneAPI locations (`/opt/intel/oneapi`,
+`$HOME/intel/oneapi`) when `MKLROOT` is not already set, and uses `ifx`
+automatically when `ifort` is not installed.
 
 ```bash
 bash build_parallel.sh <NZON>   # NZON = radial zone count, e.g. 500
