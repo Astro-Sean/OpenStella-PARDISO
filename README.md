@@ -29,18 +29,13 @@ against model simulation time:
 
 ![Runtime versus model time](validation/validation_runtime_vs_model_time.png)
 
-[docs/run_a_type_iin_model.ipynb](docs/run_a_type_iin_model.ipynb)
-walks through the full chain from compile to inputs, run, and plots.
-
 ## Build
 
-`build_parallel.sh` detects the host and sets up the toolchain itself:
-
-- `viper*` / `raven*` (MPCDF): loads the site `intel` module (ifort + MKL)
-- anything else: sources `setvars.sh` from the standard oneAPI locations
-  (`/opt/intel/oneapi`, `$HOME/intel/oneapi`) if `MKLROOT` is not set
-- override detection with `STELLA_SITE=viper|raven|generic`
-- uses `ifx` automatically when `ifort` is not installed
+`build_parallel.sh` sets up the Intel Fortran and MKL toolchain. It
+loads an available Intel module, or sources oneAPI `setvars.sh` when
+`MKLROOT` is not set. Set `STELLA_SITE=generic` to force the local
+oneAPI setup. The script uses `ifx` automatically when `ifort` is not
+installed.
 
 ```bash
 bash build_parallel.sh <NZON>   # NZON = radial zone count, e.g. 500
@@ -70,7 +65,7 @@ export MKL_THREADING_LAYER=intel
 export LD_LIBRARY_PATH="$MKLROOT/lib/intel64:$LD_LIBRARY_PATH"
 
 cd run/strad
-$HOMEStella/bin/xstella.exe < /dev/null
+../../bin/xstella.exe < /dev/null
 ```
 
 Outputs land in `res/`: `mymodel.swd` (structure and composition per
@@ -84,10 +79,7 @@ inputs, the `.hyd`/`.abn`/`.dat` field meanings, and running. It includes
 plots of the initial structure, the `.swd` structure evolution, and the
 15-band light curve.
 
-`examples/typeiin/` has a self-contained version of that chain: the same
-shell-plus-wind setup as the validation runs (7 Msun shell at
-10,000 km/s, 0.01 Msun/yr wind at 100 km/s out to 1e16 cm, 500 zones,
-60 d):
+`examples/typeiin/` has a self-contained version of the validation chain:
 
 ```bash
 bash build_parallel.sh 500
@@ -145,17 +137,8 @@ Four runs of an identical Type IIn model (7 Msun H/He shell at
 
 ### 1. Wall time
 
-| Run | Solver | Cores | Wall time | Speedup |
-| --- | ------ | ----- | --------- | ------- |
-| `TypeIIn_Y12M` | Y12M serial | 1 | 357.1 min | 1.0x |
-| `TypeIIn_P1` | PARDISO | 1 | 90.5 min | 3.95x |
-| `TypeIIn_P2` | PARDISO | 2 | 92.8 min | 3.85x |
-| `TypeIIn_P3` | PARDISO | 3 | 73.3 min | 4.87x |
-
-PARDISO is about 4x faster than Y12M on one core. Three cores add
-another 20%.
-
-![Runtime versus model time](validation/validation_runtime_vs_model_time.png)
+The table and progress curve above come from these runs. PARDISO is
+about 4x faster than Y12M on one core; three cores add another 20%.
 
 ### 2. Structure agreement
 
@@ -179,9 +162,8 @@ written by this version only.
 
 Reproduce the figures with `validation/plot_validation.py`. The script
 reads the `.swd` and `.tt` outputs, writes the profile agreement metrics
-to `validation/validation_results.txt`, and produces the wall-time bar
-chart, the wall-time-versus-model-time figure, the structure profiles,
-and the light curve.
+to `validation/validation_results.txt`, and produces the runtime,
+profile, and light-curve figures.
 
 ## Notes
 
