@@ -788,10 +788,17 @@
       endif
       endif
       Ty(K)=Y(2*Nzon+K,1)
+C-    Gas-T floor: the hcdfnrad pin acts on Fsave (residual input) but
+C-    does not bound the converged Y.  Once Ty<=0 the revert+retry loop
+C-    could never escape.  Clamp the solution to FLOOR(4) (in UTP=1e5 K)
+C-    so the floor is real; energy added at rho<1e-12 is negligible.
+      if(Ty(K)<FLOOR(4))then
       if(Ty(K)<=0.d0)then
-      write(*,*)' stradsep5tt: bad step - T, Km=',K,'  R1=',Ry(K),'  u1=
-     *',Uy(K),'  Ty=',Ty(K)
-      Badste=.true.
+      write(*,*)' stradsep5tt: T-floor clamp, Km=',K,'  R1=',Ry(K),
+     *'  u1=',Uy(K),'  Ty=',Ty(K),' ->',FLOOR(4)
+      endif
+      Ty(K)=FLOOR(4)
+      Y(2*Nzon+K,1)=FLOOR(4)
       endif
       K=K+1
       GOTO09815
@@ -1299,9 +1306,9 @@
       Ry(i)=Yout(i)
       Uy(I)=Yout(NZON+I)
       Ty(I)=Yout(2*NZON+I)
-      if(Ty(I)<0.d0)then
-      write(*,*)' I, Ty =',I,Ty(I)
-      stop' strad %ALOF: Ty<0'
+      if(Ty(I)<FLOOR(4))then
+      Yout(2*NZON+I)=FLOOR(4)
+      Ty(I)=FLOOR(4)
       endif
 09628 CONTINUE
       RX=1.D0
