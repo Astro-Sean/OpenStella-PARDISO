@@ -12,6 +12,8 @@ photometry from each run directory and produces:
   for the 1-CPU PARDISO run.
 * ``validation_results.txt`` -- wall times, exit status and the
   maximum profile differences between each PARDISO run and Y12M.
+* ``validation_runtime_vs_model_time.png`` -- wall-clock time since
+  the STELLA solver start versus model simulation time for each run.
 
 The .swd column layout (strad/lbalsw.trf, FORMAT 181/281):
 
@@ -26,8 +28,10 @@ timestamp; interior rows write 0 in the time column.
 import argparse
 import glob
 import os
+import re
 import subprocess
 import sys
+from datetime import datetime
 
 import matplotlib
 
@@ -265,6 +269,113 @@ def elapsed_minutes(jobid):
         return None
 
 
+def swd_epoch_times(path):
+    """Return the zone-1 timestamp from every .swd block in order."""
+    times = []
+    with open(path, errors="ignore") as fh:
+        for line in fh:
+            f = line.split()
+            if len(f) == 30 and int(f[1]) == 1:
+                t = float(f[0])
+                if t != 0.0:
+                    times.append(t)
+    return times
+
+
+def clock_seconds(day, clock):
+    """Convert REAL_CLOCK date and HHMMSS.sss fields to seconds."""
+    value = float(clock)
+    hour = int(value // 10000)
+    minute = int((value - hour * 10000) // 100)
+    second = value - hour * 10000 - minute * 100
+    day_number = datetime.strptime(day, "%Y%m%d").toordinal()
+    return day_number * 86400 + hour * 3600 + minute * 60 + second
+
+
+def find_job_log(model_dir, name, jobid):
+    """Locate the SLURM .out file for one validation run."""
+    patterns = [
+        os.path.join(model_dir, "stella", f"*{jobid}*.out"),
+        os.path.join(model_dir, "stella", f"stella_{name}_*.out"),
+        os.path.join(model_dir, "stella", "*.out"),
+    ]
+    for pattern in patterns:
+        matches = sorted(glob.glob(pattern))
+        if matches:
+            return matches[0]
+    return None
+
+
+def parse_runtime_progress(log_path, swd_path):
+    """Match wall-clock stamps to .swd epochs via the next ipout line.
+
+    Each DATE_TIME/REAL_CLOCK stamp immediately precedes an ``ipout`` call
+    when it marks model progress.  The ``ipout`` calls occur in the same
+    order as the zone-1 rows in the .swd file, so their positions provide
+    the model time.  Stamps after the last ``ipout`` are finalization work
+    and use the last model epoch.
+    """
+    sim_times = swd_epoch_times(swd_path)
+    clock_events = []
+    ipout_lines = []
+    day = None
+    clock_re = re.compile(r"REAL_CLOCK\((\d)\)=\s*([0-9.+Ee-]+)")
+
+    with open(log_path, errors="ignore") as fh:
+        for lineno, line in enumerate(fh, start=1):
+            match = clock_re.search(line)
+            if match:
+                if match.group(1) == "1":
+                    day = match.group(2)
+                elif match.group(1) == "2" and day:
+                    clock_events.append((lineno, clock_seconds(day, match.group(2))))
+                    day = None
+            if "ipout fullgp" in line:
+                ipout_lines.append(lineno)
+
+    if len(sim_times) < 2 or len(clock_events) < 2 or not ipout_lines:
+        return None
+
+    pairs = []
+    next_output = 0
+    for lineno, wall_time in clock_events:
+        while next_output < len(ipout_lines) and ipout_lines[next_output] < lineno:
+            next_output += 1
+        epoch_index = min(next_output, len(sim_times) - 1)
+        pairs.append((sim_times[epoch_index], wall_time))
+
+    start = pairs[0][1]
+    sim_days = np.array([p[0] for p in pairs])
+    elapsed = np.array([(p[1] - start) / 60.0 for p in pairs])
+    return sim_days, elapsed
+
+
+def plot_runtime_progress(progress_by_run, outpath):
+    """Plot wall-clock runtime as a function of model simulation time."""
+    order = [k for k in ("Y12M", "P1", "P2", "P3") if k in progress_by_run]
+    fig, ax = plt.subplots(figsize=(8, 5))
+    end_offsets = {
+        "Y12M": (5, 0), "P1": (5, 8), "P2": (5, -8), "P3": (5, 0),
+    }
+    for run in order:
+        sim_days, elapsed = progress_by_run[run]
+        ax.plot(sim_days, elapsed, label=RUN_LABEL[run], **RUN_STYLE[run])
+        ax.annotate(
+            f"{elapsed[-1]:.0f} min",
+            (sim_days[-1], elapsed[-1]),
+            xytext=end_offsets[run], textcoords="offset points",
+            color=RUN_STYLE[run]["color"], fontsize=8, va="center",
+        )
+    ax.set_xlabel("model simulation time (days)")
+    ax.set_ylabel("wall time since STELLA start (min)")
+    ax.set_title("Type IIn: model progress versus execution time")
+    ax.legend(fontsize=9, loc="upper left")
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(outpath, dpi=160)
+    plt.close(fig)
+
+
 def plot_runtime(minutes_by_run, outpath):
     """Wall-time bar chart with per-run speedup over the Y12M baseline."""
     order = [k for k in ("Y12M", "P1", "P2", "P3") if k in minutes_by_run]
@@ -327,10 +438,12 @@ def main():
     blocks_by_run = {}
     tt_by_run = {}
     swd_paths = {}
+    model_dirs = {}
     for key, run in zip(keys, args.runs):
         mdir = run if os.path.isabs(run) else os.path.join(
             args.run_root, run
         )
+        model_dirs[key] = mdir
         name = os.path.basename(mdir.rstrip("/"))
         swd, tt = find_outputs(mdir, name)
         swd_paths[key] = swd
@@ -386,6 +499,22 @@ def main():
             plot_runtime(
                 minutes,
                 os.path.join(args.outdir, "validation_runtime.png"),
+            )
+        progress = {}
+        for k, jobid in zip(keys, args.jobids):
+            mdir = model_dirs[k]
+            name = os.path.basename(mdir.rstrip("/"))
+            log_path = find_job_log(mdir, name, jobid)
+            swd_path = swd_paths.get(k)
+            if not log_path or not swd_path:
+                continue
+            series = parse_runtime_progress(log_path, swd_path)
+            if series is not None:
+                progress[k] = series
+        if len(progress) >= 2:
+            plot_runtime_progress(
+                progress,
+                os.path.join(args.outdir, "validation_runtime_vs_model_time.png"),
             )
     report.append("")
     report.append("profile agreement (max abs difference in dex):")
