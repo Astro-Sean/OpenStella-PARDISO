@@ -24,11 +24,8 @@ unchanged. Only the linear solver changed.
 | PARDISO | 2 | 92.8 min | 3.85x |
 | PARDISO | 3 | 73.3 min | 4.87x |
 
-Type IIn shell-plus-wind model, 500 zones, 60 d:
-
-![Runtime comparison](validation/validation_runtime.png)
-
-The same runs plotted as wall time against model simulation time:
+Type IIn shell-plus-wind model, 500 zones, 60 d. Wall time is shown
+against model simulation time:
 
 ![Runtime versus model time](validation/validation_runtime_vs_model_time.png)
 
