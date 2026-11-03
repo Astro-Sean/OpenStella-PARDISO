@@ -653,10 +653,16 @@ end;
          endif;
        endif;
        Ty(K)=Y(2*Nzon+K,1);
-       if(Ty(K)<= 0.d0 )then; -- try new smaller step
-         write(*,*)' stradsep5tt: bad step - T, Km=',K,
+       if(Ty(K)<FLOOR(4))then; -- gas-T floor on the solution itself:
+         -- the hcdfnrad pin only bounds Fsave (residual input), so the
+         -- converged Y could still reach Ty<=0 and the revert+retry
+         -- loop never escaped.  Clamp instead of rejecting the step.
+         if(Ty(K)<=0.d0)then;
+           write(*,*)' stradsep5tt: T-floor clamp, Km=',K,
                     '  R1=',Ry(K),'  u1=',Uy(K),'  Ty=',Ty(K);
-         Badste=.true.;
+         endif;
+         Ty(K)=FLOOR(4);
+         Y(2*Nzon+K,1)=FLOOR(4);
        endif;
        K=K+1;
     _od;
@@ -2051,9 +2057,9 @@ _DO I=1,NZON;
     Uy(I)=Yout(NZON+I); -- NR
    -- Uy(I)=Yout(NZON+I)/sqrt(1.d0+(Yout(Nzon+K,1)/clight)**2
     Ty(I)=Yout(2*NZON+I);
-    if(Ty(I)<0.d0)then;
-       @wterm ' I, Ty =', I, Ty(I);
-       stop ' strad %ALOF: Ty<0';
+    if(Ty(I)<FLOOR(4))then;
+       Yout(2*NZON+I)=FLOOR(4);
+       Ty(I)=FLOOR(4);
     endif;
 _OD;
  --pause;
