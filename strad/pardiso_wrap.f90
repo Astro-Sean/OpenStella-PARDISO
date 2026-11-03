@@ -198,7 +198,8 @@ contains
       iparm(4) = 0
       iparm(5) = 0
       iparm(8) = 10    ! max iterative refinement steps
-      iparm(10) = 8    ! pivot perturbation 1e-8
+      iparm(10) = 10   ! pivot perturbation 1e-10: 1e-8 injected noise
+                       ! larger than the refinement target into every solve
       iparm(11) = 1    ! scaling vectors (required for unsymmetric)
       iparm(13) = 1    ! matching / weighted matching (required for unsymmetric)
       iparm(18) = -1
