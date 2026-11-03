@@ -19,10 +19,13 @@ SLURM jobs:
 profile agreement (max abs difference in dex):
 epoch t = -3.82 d
   P1 vs Y12M  max|dlog10|  rho: 0.0000 dex  v: 0.0000 dex  Tgas: 0.0000 dex
+  P2 vs Y12M  max|dlog10|  rho: 0.0000 dex  v: 0.0000 dex  Tgas: 0.0000 dex
   P3 vs Y12M  max|dlog10|  rho: 0.0000 dex  v: 0.0000 dex  Tgas: 0.0000 dex
-epoch t = 27.51 d
-  P1 vs Y12M  max|dlog10|  rho: 0.0742 dex  v: 0.0222 dex  Tgas: 0.0762 dex
-  P3 vs Y12M  max|dlog10|  rho: 0.0714 dex  v: 0.0220 dex  Tgas: 0.0800 dex
+epoch t = 27.54 d
+  P1 vs Y12M  max|dlog10|  rho: 0.0014 dex  v: 0.0004 dex  Tgas: 0.0544 dex
+  P2 vs Y12M  max|dlog10|  rho: 0.0016 dex  v: 0.0006 dex  Tgas: 0.0603 dex
+  P3 vs Y12M  max|dlog10|  rho: 0.0015 dex  v: 0.0005 dex  Tgas: 0.0583 dex
 epoch t = 56.18 d
   P1 vs Y12M  max|dlog10|  rho: 0.0070 dex  v: 0.0012 dex  Tgas: 0.0019 dex
+  P2 vs Y12M  max|dlog10|  rho: 0.0126 dex  v: 0.0044 dex  Tgas: 0.0032 dex
   P3 vs Y12M  max|dlog10|  rho: 0.0443 dex  v: 0.0087 dex  Tgas: 0.0037 dex
