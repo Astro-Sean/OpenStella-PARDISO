@@ -6,16 +6,16 @@ supernova light curves.
 
 ## The problem
 
-Stock OpenStella solves the implicit radiation-hydro system with **Y12M**, a
+Stock OpenStella solves the implicit radiation-hydro system with Y12M, a
 serial sparse direct solver from the 1980s. It is the single-threaded
-bottleneck of the code: on a 500-zone Type IIn model a full 60 d run takes
-**357 min**, almost all of it inside the linear solve.
+bottleneck of the code. On a 500-zone Type IIn model, a full 60 d run
+takes 357 min, almost all of it inside the linear solve.
 
 ## The fix
 
-Y12M is replaced by **Intel MKL PARDISO** (with OpenMP threading), via the
-wrapper `strad/pardiso_wrap.f90`. Physics, numerics, and the time integrator
-are untouched - only the linear solver changed.
+This build replaces Y12M with Intel MKL PARDISO through the wrapper
+`strad/pardiso_wrap.f90`. Physics, numerics, and the time integrator are
+unchanged. Only the linear solver changed.
 
 | Solver | Cores | Wall time | Speedup |
 | ------ | ----- | --------- | ------- |
@@ -28,16 +28,22 @@ Type IIn shell-plus-wind model, 500 zones, 60 d:
 
 ![Runtime comparison](validation/validation_runtime.png)
 
+The same runs plotted as wall time against model simulation time:
+
+![Runtime versus model time](validation/validation_runtime_vs_model_time.png)
+
 [docs/run_a_type_iin_model.ipynb](docs/run_a_type_iin_model.ipynb)
-walks through compile -> inputs -> run -> plots end to end.
+walks through the full chain from compile to inputs, run, and plots.
 
 ## Build
 
-Requires Intel Fortran (`ifort` or `ifx`) and Intel MKL.
-`build_parallel.sh` sets up the toolchain itself: it sources `setvars.sh`
-from the standard oneAPI locations (`/opt/intel/oneapi`,
-`$HOME/intel/oneapi`) when `MKLROOT` is not already set, and uses `ifx`
-automatically when `ifort` is not installed.
+`build_parallel.sh` detects the host and sets up the toolchain itself:
+
+- `viper*` / `raven*` (MPCDF): loads the site `intel` module (ifort + MKL)
+- anything else: sources `setvars.sh` from the standard oneAPI locations
+  (`/opt/intel/oneapi`, `$HOME/intel/oneapi`) if `MKLROOT` is not set
+- override detection with `STELLA_SITE=viper|raven|generic`
+- uses `ifx` automatically when `ifort` is not installed
 
 ```bash
 bash build_parallel.sh <NZON>   # NZON = radial zone count, e.g. 500
@@ -48,7 +54,7 @@ Produces `bin/xstella.exe`.
 ## Run
 
 STELLA runs from a `strad/` directory containing the model inputs:
-`<model>.dat` (run parameters and output epochs), `<model>.mod` +
+`<model>.dat` (run parameters and output epochs), `<model>.mod` and
 `<model>.xni` (initial structure, from `eve2.exe` or a `.hyd`/`.abn`
 conversion), `<model>.1` (opacity table), and a `strad.1` index file
 naming them:
@@ -70,19 +76,19 @@ cd run/strad
 $HOMEStella/bin/xstella.exe < /dev/null
 ```
 
-Outputs land in `res/`: `mymodel.swd` (structure + composition per
+Outputs land in `res/`: `mymodel.swd` (structure and composition per
 epoch), `mymodel.tt` (15-band light curve), `mymodel.res`, `.lbol`,
-`.ph`, `.flx`. See `readme.stella` for the full input-file reference.
+`.ph`, and `.flx`. See `readme.stella` for the full input-file reference.
 
-**Worked example:** see
-[docs/run_a_type_iin_model.ipynb](docs/run_a_type_iin_model.ipynb) -
-a full walkthrough of building the code, writing the shell-plus-wind
-Type IIn inputs, the `.hyd`/`.abn`/`.dat` field meanings, and running,
-with embedded plots of the initial structure, the `.swd` structure
-evolution, and the 15-band light curve.
+Worked example: see
+[docs/run_a_type_iin_model.ipynb](docs/run_a_type_iin_model.ipynb), a
+walkthrough of building the code, writing the shell-plus-wind Type IIn
+inputs, the `.hyd`/`.abn`/`.dat` field meanings, and running. It includes
+plots of the initial structure, the `.swd` structure evolution, and the
+15-band light curve.
 
-`examples/typeiin/` has a self-contained version of that chain - the
-same shell-plus-wind setup as the validation runs (7 Msun shell at
+`examples/typeiin/` has a self-contained version of that chain: the same
+shell-plus-wind setup as the validation runs (7 Msun shell at
 10,000 km/s, 0.01 Msun/yr wind at 100 km/s out to 1e16 cm, 500 zones,
 60 d):
 
@@ -92,21 +98,21 @@ python examples/typeiin/make_shell_wind_model.py --output-dir ./TypeIIn_run
 bash examples/typeiin/run_model.sh ./TypeIIn_run 2
 ```
 
-The generator writes all inputs (`.hyd`, `.abn`, `.xni`, `.dat`,
-`.eve`, `eve.1`, `ronfict.1`, `strad.1`); the runner chains
-`eve2.exe` -> `xronfict.exe` -> `xstella.exe` and takes the thread
-count as its second argument. Model parameters (shell mass and
-velocity, wind rate/velocity/radius, zone count, run length) are CLI
-flags on the generator - see `--help`. Neither script depends on
-anything outside this repo.
+The generator writes all inputs (`.hyd`, `.abn`, `.xni`, `.dat`, `.eve`,
+`eve.1`, `ronfict.1`, `strad.1`). The runner chains `eve2.exe`,
+`xronfict.exe`, and `xstella.exe`, and takes the thread count as its
+second argument. Model parameters (shell mass and velocity, wind rate,
+wind velocity, wind radius, zone count, run length) are CLI flags on the
+generator; see `--help`. Neither script depends on anything outside this
+repo.
 
 ## New output: composition evolution in `.swd`
 
-The `.swd` structure file now also records the **evolution of the mass
-composition**: every epoch block appends the baryon number density
-`n_bar`, the electron density `n_e`, and the 15 elemental mass fractions
-`X_k` per zone (`strad/lbalsw.trf`, FORMAT 181/281). One record per zone
-per epoch, 30 columns:
+The `.swd` structure file now also records mass-composition evolution:
+every epoch block appends the baryon number density `n_bar`, the electron
+density `n_e`, and the 15 elemental mass fractions `X_k` per zone
+(`strad/lbalsw.trf`, FORMAT 181/281). One record per zone per epoch,
+30 columns:
 
 ```text
 t[d]  zone  log Mext[Msun]  log R[cm]  v[1e8 cm/s]  log Tgas  log Trad
@@ -116,13 +122,13 @@ X(Ca) X(Fe) X(Ni)
 ```
 
 Time is written only on the zone-1 and zone-Nzon rows of each epoch
-block (interior rows carry 0). This is what makes composition-evolution
-and element-tracking plots possible directly from `.swd`.
+block; interior rows carry 0. The added columns make composition
+evolution and element tracking plots possible directly from `.swd`.
 
 ## New photometric filters
 
-The `.tt` light-curve file gains ten bands on top of the stock
-`U B V I R` set (`strad/tt4strad.f`):
+The `.tt` light-curve file adds ten bands to the stock `U B V I R` set
+(`strad/tt4strad.f`):
 
 | System | Bands |
 | ------ | ----- |
@@ -131,8 +137,8 @@ The `.tt` light-curve file gains ten bands on top of the stock
 | 2MASS | `J H Ks` |
 | ATLAS | `c o` (cyan, orange) |
 
-15 magnitudes per epoch in total: `MU MB MV MI MR Mu Mg Mr Mi Mz MJ MH
-MKs Mc Mo`. Note: the stock build writes only the first five.
+That gives 15 magnitudes per epoch: `MU MB MV MI MR Mu Mg Mr Mi Mz MJ MH
+MKs Mc Mo`. The stock build writes only the first five.
 
 ## Validation: Type IIn, Y12M vs PARDISO
 
@@ -149,47 +155,53 @@ Four runs of an identical Type IIn model (7 Msun H/He shell at
 | `TypeIIn_P2` | PARDISO | 2 | 92.8 min | 3.85x |
 | `TypeIIn_P3` | PARDISO | 3 | 73.3 min | 4.87x |
 
-PARDISO is ~4x faster than Y12M on a single core; 3 cores add
-another ~20%.
+PARDISO is about 4x faster than Y12M on one core. Three cores add
+another 20%.
+
+![Runtime versus model time](validation/validation_runtime_vs_model_time.png)
 
 ### 2. Structure agreement
 
-Density, velocity and gas-temperature profiles at three epochs
-(-3.8, 27.5 and 56.2 d). The curves lie on top of each other: the
-median difference is ~0.002 dex (~0.5%) and the worst single-zone
-difference (~0.08 dex) sits on the shock-front spike, where a
-one-zone offset on a steep gradient inflates the pointwise metric.
+Density, velocity, and gas-temperature profiles at three epochs
+(-3.8, 27.5, and 56.2 d). The curves lie on top of each other. The
+median difference is about 0.002 dex (about 0.5%), and the worst
+single-zone difference (about 0.08 dex) sits on the shock-front spike,
+where a one-zone offset on a steep gradient inflates the pointwise
+metric.
 
 ![Profile agreement](validation/validation_profiles.png)
 
 ### 3. Light curve
 
-The full 15-band light curve from the 1-CPU PARDISO run: a bright
-interaction plateau near -17.5 mag sustained out to 60 d. Stock
-builds write only UBVRI; the SDSS, 2MASS and ATLAS bands plotted
-here are written by this version only.
+The full 15-band light curve from the 1-CPU PARDISO run has a bright
+interaction plateau near -17.5 mag sustained out to 60 d. Stock builds
+write only UBVRI; the SDSS, 2MASS, and ATLAS bands plotted here are
+written by this version only.
 
 ![15-band light curve](validation/validation_lightcurve.png)
 
-Reproduce the figures with `validation/plot_validation.py` (reads the
-`.swd`/`.tt` outputs, prints the profile agreement metrics to
-`validation/validation_results.txt`).
+Reproduce the figures with `validation/plot_validation.py`. The script
+reads the `.swd` and `.tt` outputs, writes the profile agreement metrics
+to `validation/validation_results.txt`, and produces the wall-time bar
+chart, the wall-time-versus-model-time figure, the structure profiles,
+and the light curve.
 
 ## Notes
 
-- PARDISO uses scaling, matching and 1x1/2x2 pivoting for the unsymmetric
-  Jacobian, reuses the factorization when the matrix is unchanged, and checks
-  each solve against a quadruple-precision residual (`ifail=33` triggers a
-  retry with a smaller step, same as Y12M).
+- PARDISO uses scaling, matching, and 1x1/2x2 pivoting for the
+  unsymmetric Jacobian, reuses the factorization when the matrix is
+  unchanged, and checks each solve against a quadruple-precision residual
+  (`ifail=33` triggers a retry with a smaller step, same as Y12M).
 - Debug switches: `PARDISO_DEBUG=1`, `PARDISO_DUMP_AT=<solve>`,
   `PARDISO_DUMP_RES=<tol>`.
-- The slowdown at strong shocks is in the time integration, not the linear
-  solve - this makes each stiff step cheaper but does not reduce their count.
-  Threading past 2-3 cores gives diminishing returns.
+- The slowdown at strong shocks is in the time integration, not the
+  linear solve. This change makes each stiff step cheaper but does not
+  reduce their count. Threading past 2-3 cores gives diminishing returns.
 
 ## License
 
-GPLv3, same as upstream OpenStella. Original code by S. Blinnikov & O. Bartunov.
+GPLv3, same as upstream OpenStella. Original code by S. Blinnikov & O.
+Bartunov.
 
 ### Citing STELLA
 
