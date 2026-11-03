@@ -333,7 +333,7 @@ C-!       parameter (nn1=3*nonz_max)
 C: DATA FOR STIFF *
       DATAANOISE/1.D-12/
 C-should be set to the noise level of the machine
-      DATADFLTZR/1.D-75/,MAXITE/3/,MAXFAI/3/
+      DATADFLTZR/1.D-75/,MAXITE/6/,MAXFAI/3/
       DATARMXINI/1.D+4/,RMXNOR/10.D0/,RMXFAI/2.0D0/,IDELAY/10/
       DATARHCORR/.25D0/,RHERR3/.1D0/,RCTEST/.3D0/
       DATABIAS1/1.3D0/,BIAS2/1.2D0/,BIAS3/1.4D0/
