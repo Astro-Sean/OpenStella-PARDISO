@@ -38,6 +38,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import AutoMinorLocator
 
 AVOGADRO = 6.02214076e23
 
@@ -366,11 +367,22 @@ def plot_runtime_progress(progress_by_run, outpath):
             xytext=end_offsets[run], textcoords="offset points",
             color=RUN_STYLE[run]["color"], fontsize=8, va="center",
         )
-    ax.set_xlabel("model simulation time (days)")
+    all_days = np.concatenate([progress_by_run[k][0] for k in order])
+    all_elapsed = np.concatenate([progress_by_run[k][1] for k in order])
+    day_span = all_days.max() - all_days.min()
+    ax.set_xlim(
+        all_days.min() - 0.02 * day_span,
+        all_days.max() + 0.14 * day_span,
+    )
+    ax.set_ylim(0, all_elapsed.max() * 1.10)
+    ax.set_xlabel("Simulation time until shock breakout (days)")
     ax.set_ylabel("wall time since STELLA start (min)")
     ax.set_title("Type IIn: model progress versus execution time")
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax.legend(fontsize=9, loc="upper left")
     ax.grid(alpha=0.3)
+    ax.grid(alpha=0.12, which="minor")
     fig.tight_layout()
     fig.savefig(outpath, dpi=160)
     plt.close(fig)
