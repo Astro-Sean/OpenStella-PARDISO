@@ -63,6 +63,16 @@ RUN_LABEL = {
 }
 
 
+def style_axes(ax, minor_x=True, minor_y=True, grid_axis="both"):
+    """Apply the shared validation tick and grid style."""
+    if minor_x and ax.get_xscale() == "linear":
+        ax.xaxis.set_minor_locator(AutoMinorLocator())
+    if minor_y and ax.get_yscale() == "linear":
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax.grid(axis=grid_axis, alpha=0.3)
+    ax.grid(axis=grid_axis, alpha=0.12, which="minor")
+
+
 def parse_swd(path):
     """Return {epoch_time: (radius_cm, v_kms, rho, tgas, trad)} dict."""
     blocks = {}
@@ -170,7 +180,7 @@ def plot_profiles(blocks_by_run, epochs, outpath):
                 ax.set_title(f"t = {t:.1f} d")
             if row == 0 and col == 0:
                 ax.legend(fontsize=8, loc="lower left")
-            ax.grid(alpha=0.3)
+            style_axes(ax)
     fig.suptitle(
         "Type IIn validation: Y12M vs PARDISO structure agreement",
         y=0.995,
@@ -204,7 +214,7 @@ def plot_lightcurve(tt, outpath):
     )
     ax.legend(ncol=3, fontsize=8, loc="upper center",
               bbox_to_anchor=(0.5, -0.12))
-    ax.grid(alpha=0.3)
+    style_axes(ax)
     fig.tight_layout()
     fig.savefig(outpath, dpi=160, bbox_inches="tight")
     plt.close(fig)
@@ -378,11 +388,8 @@ def plot_runtime_progress(progress_by_run, outpath):
     ax.set_xlabel("Simulation time until shock breakout (days)")
     ax.set_ylabel("wall time since STELLA start (min)")
     ax.set_title("Type IIn: model progress versus execution time")
-    ax.xaxis.set_minor_locator(AutoMinorLocator())
-    ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax.legend(fontsize=9, loc="upper left")
-    ax.grid(alpha=0.3)
-    ax.grid(alpha=0.12, which="minor")
+    style_axes(ax)
     fig.tight_layout()
     fig.savefig(outpath, dpi=160)
     plt.close(fig)
@@ -408,7 +415,7 @@ def plot_runtime(minutes_by_run, outpath):
     ax.set_ylabel("wall time (min)")
     ax.set_ylim(0, base * 1.18)
     ax.set_title("Type IIn (500 zones, 60 d): Y12M vs PARDISO wall time")
-    ax.grid(axis="y", alpha=0.3)
+    style_axes(ax, minor_x=False, grid_axis="y")
     fig.tight_layout()
     fig.savefig(outpath, dpi=160)
     plt.close(fig)
