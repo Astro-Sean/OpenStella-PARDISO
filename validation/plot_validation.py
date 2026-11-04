@@ -162,6 +162,29 @@ def plot_profiles(blocks_by_run, epochs, outpath):
         ("velocity", 1, "v (km s$^{-1}$)", "log"),
         ("temperature", 3, r"$T_{\rm gas}$ (K)", "log"),
     ]
+    # One x range and one y range per metric across all epochs, so the
+    # panels show the structure evolving on fixed axes.
+    xlim = [np.inf, -np.inf]
+    ylims = [[np.inf, -np.inf] for _ in quantities]
+    for t in epochs:
+        for blocks in blocks_by_run.values():
+            b = nearest_block(blocks, t)
+            xlim[0] = min(xlim[0], b[:, 0].min())
+            xlim[1] = max(xlim[1], b[:, 0].max())
+            for row, (_, idx, _, _) in enumerate(quantities):
+                v = b[:, idx]
+                v = v[np.isfinite(v) & (v > 0.0)]
+                if v.size:
+                    ylims[row][0] = min(ylims[row][0], v.min())
+                    ylims[row][1] = max(ylims[row][1], v.max())
+
+    def pad_log(lim):
+        lo, hi = np.log10(lim[0]), np.log10(lim[1])
+        pad = 0.06 * (hi - lo)
+        return [10.0 ** (lo - pad), 10.0 ** (hi + pad)]
+
+    xlim = pad_log(xlim)
+    ylims = [pad_log(lim) for lim in ylims]
     for col, t in enumerate(epochs):
         for row, (_, idx, label, scale) in enumerate(quantities):
             ax = axes[row][col]
@@ -173,6 +196,8 @@ def plot_profiles(blocks_by_run, epochs, outpath):
                 )
             ax.set_xscale("log")
             ax.set_yscale(scale)
+            ax.set_xlim(xlim)
+            ax.set_ylim(ylims[row])
             ax.set_xlabel("radius (cm)")
             if col == 0:
                 ax.set_ylabel(label)
