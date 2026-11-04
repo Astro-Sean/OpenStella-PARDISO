@@ -38,7 +38,14 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.ticker import AutoMinorLocator
+from matplotlib.ticker import (
+    AutoMinorLocator,
+    LogFormatterSciNotation,
+    LogLocator,
+    MaxNLocator,
+    MultipleLocator,
+)
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, mark_inset
 
 AVOGADRO = 6.02214076e23
 
@@ -63,14 +70,17 @@ RUN_LABEL = {
 }
 
 
-def style_axes(ax, minor_x=True, minor_y=True, grid_axis="both"):
+def style_axes(
+    ax, minor_x=True, minor_y=True, grid_axis="both", minor_grid=True
+):
     """Apply the shared validation tick and grid style."""
     if minor_x and ax.get_xscale() == "linear":
         ax.xaxis.set_minor_locator(AutoMinorLocator())
     if minor_y and ax.get_yscale() == "linear":
         ax.yaxis.set_minor_locator(AutoMinorLocator())
-    ax.grid(axis=grid_axis, alpha=0.3)
-    ax.grid(axis=grid_axis, alpha=0.12, which="minor")
+    ax.grid(axis=grid_axis, alpha=0.22)
+    if minor_grid:
+        ax.grid(axis=grid_axis, alpha=0.10, which="minor")
 
 
 def parse_swd(path):
@@ -152,6 +162,98 @@ def nearest_block(blocks, t):
     return blocks[min(blocks, key=lambda k: abs(k - t))]
 
 
+def pad_log(lim):
+    lo, hi = np.log10(lim[0]), np.log10(lim[1])
+    pad = 0.06 * (hi - lo)
+    return [10.0 ** (lo - pad), 10.0 ** (hi + pad)]
+
+
+def pad_linear(lim, fraction=0.03):
+    span = lim[1] - lim[0]
+    pad = fraction * span
+    return [lim[0] - pad, lim[1] + pad]
+
+
+def shock_inset(ax, blocks_by_run, t, idx, scale, loc):
+    """Add a zoomed inset on the steepest gradient of the Y12M profile.
+
+    Include nearby zones so the inset shows the full shock transition.
+    """
+    ref = nearest_block(blocks_by_run["Y12M"], t)
+    r, q = ref[:, 0], ref[:, idx]
+    m = np.isfinite(q) & (q > 0.0) & np.isfinite(r) & (r > 0.0)
+    if m.sum() < 3:
+        return
+    r, q = r[m], q[m]
+    grad = np.abs(np.diff(np.log10(q)) / np.diff(np.log10(r)))
+    i = int(np.argmax(grad))
+
+    n = len(r)
+    i_p = i - min(8, i) + int(
+        np.argmax(q[max(0, i - 8):min(n, i + 9)])
+    )
+    r_shock = r[i_p]
+    half_width = 0.25e15
+    lo_x = r_shock - half_width
+    hi_x = r_shock + half_width
+
+    iax = inset_axes(
+        ax,
+        width="42%",
+        height="42%",
+        loc=loc,
+        borderpad=1.3 if loc == "lower left" else 0.5,
+    )
+    lo_y, hi_y = np.inf, -np.inf
+    for run, blocks in blocks_by_run.items():
+        b = nearest_block(blocks, t)
+        sel = (b[:, 0] >= lo_x) & (b[:, 0] <= hi_x) & (b[:, idx] > 0)
+        if sel.any():
+            lo_y = min(lo_y, b[sel, idx].min())
+            hi_y = max(hi_y, b[sel, idx].max())
+        iax.plot(b[:, 0], b[:, idx], **RUN_STYLE[run])
+    iax.set_xscale("linear")
+    iax.set_yscale(scale)
+    iax.set_xlim(lo_x, hi_x)
+    iax.xaxis.set_major_locator(MultipleLocator(0.1e15))
+    iax.xaxis.set_major_formatter(
+        plt.FuncFormatter(lambda value, _: f"{value / 1e15:.1f}")
+    )
+    iax.xaxis.set_minor_locator(AutoMinorLocator())
+    if np.isfinite(lo_y):
+        if scale == "log":
+            iax.set_ylim(pad_log((lo_y, hi_y)))
+            iax.yaxis.set_major_locator(LogLocator(base=10, numticks=3))
+            iax.yaxis.set_major_formatter(
+                LogFormatterSciNotation(base=10)
+            )
+            iax.yaxis.set_minor_locator(plt.NullLocator())
+            iax.yaxis.set_minor_formatter(plt.NullFormatter())
+        else:
+            iax.set_ylim(pad_linear((lo_y, hi_y), fraction=0.05))
+            iax.yaxis.set_major_locator(MaxNLocator(nbins=4))
+            iax.yaxis.set_minor_locator(AutoMinorLocator())
+    iax.yaxis.tick_right()
+    iax.tick_params(axis="x", which="major", labelsize=6, direction="in")
+    iax.tick_params(axis="x", which="minor", direction="in", length=2)
+    iax.tick_params(axis="y", labelsize=6, direction="out", pad=1)
+    iax.text(
+        0.98,
+        0.03,
+        r"$R$ ($10^{15}$ cm)",
+        transform=iax.transAxes,
+        ha="right",
+        va="bottom",
+        fontsize=6,
+        bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.8, "pad": 0.4},
+    )
+    _, top_connector, bottom_connector = mark_inset(
+        ax, iax, loc1=1, loc2=4, fc="none", ec="0.3", lw=0.45, alpha=0.35
+    )
+    top_connector.loc2 = 2
+    bottom_connector.loc2 = 3
+
+
 def plot_profiles(blocks_by_run, epochs, outpath):
     fig, axes = plt.subplots(
         3, len(epochs), figsize=(4.2 * len(epochs), 10),
@@ -178,11 +280,6 @@ def plot_profiles(blocks_by_run, epochs, outpath):
                     ylims[row][0] = min(ylims[row][0], v.min())
                     ylims[row][1] = max(ylims[row][1], v.max())
 
-    def pad_log(lim):
-        lo, hi = np.log10(lim[0]), np.log10(lim[1])
-        pad = 0.06 * (hi - lo)
-        return [10.0 ** (lo - pad), 10.0 ** (hi + pad)]
-
     xlim = pad_log(xlim)
     ylims = [pad_log(lim) for lim in ylims]
     for col, t in enumerate(epochs):
@@ -202,16 +299,32 @@ def plot_profiles(blocks_by_run, epochs, outpath):
             if col == 0:
                 ax.set_ylabel(label)
             if row == 0:
-                ax.set_title(f"t = {t:.1f} d")
+                title = (
+                    r"$t_0 = t = -3.8\,\mathrm{d}$"
+                    if col == 0
+                    else rf"$t = {t:.1f}\,\mathrm{{d}}$"
+                )
+                ax.set_title(title)
             if row == 0 and col == 0:
-                ax.legend(fontsize=8, loc="lower left")
-            style_axes(ax)
-    fig.suptitle(
-        "Type IIn validation: Y12M vs PARDISO structure agreement",
-        y=0.995,
-    )
-    fig.tight_layout()
-    fig.savefig(outpath, dpi=160)
+                ax.legend(
+                    fontsize=8,
+                    loc="lower left",
+                    framealpha=0.95,
+                    edgecolor="0.4",
+                )
+            style_axes(ax, minor_grid=False)
+            if row in (0, 2) and col in (1, 2):
+                loc = "lower left" if row == 0 else "upper left"
+                shock_inset(
+                    ax,
+                    blocks_by_run,
+                    t,
+                    idx,
+                    "linear" if row == 2 else scale,
+                    loc,
+                )
+    fig.tight_layout(pad=0.7)
+    fig.savefig(outpath, dpi=300, bbox_inches="tight")
     plt.close(fig)
 
 
