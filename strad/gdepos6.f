@@ -125,7 +125,7 @@
      *NFRUSED(Lcurdm),Lsaved
       LOGICALBEGRUN
       Common/BEGR/BEGRUN
-      CHARACTER*80Model,Sumprf,Sumcur,Depfile,Flxfile
+      CHARACTER*160Model,Sumprf,Sumcur,Depfile,Flxfile
       COMMON/Files/Model,Sumprf,Sumcur,Depfile,Flxfile
       CHARACTER*1app
       LogicalGivdtl
