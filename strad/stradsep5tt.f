@@ -99,7 +99,7 @@
       COMMON/UNINV/UPI,UEI
       COMMON/UNBSTL/UR,UM,UEPRI,ULGP,ULGE,ULGV,ULGTM,ULGEST,ULGFL,ULGCAP
      *,ULGEPS
-      Character*80Opafile
+      Character*160Opafile
       real*4hptabab,hptababron,hptabsc,hpsavsc
       Common/Opsave/hpsavsc(Nfreq,14,14,Mzon/(Mzon/2)+1,6)
       Common/OpBand/TpTab(14),RhoTab(14),STab(6),Wavel(Nfreq),YATab(Nato
@@ -142,7 +142,7 @@
      *NFRUSED(Lcurdm),Lsaved
       LOGICALBEGRUN
       Common/BEGR/BEGRUN
-      CHARACTER*80Model,Sumprf,Sumcur,Depfile,Flxfile
+      CHARACTER*160Model,Sumprf,Sumcur,Depfile,Flxfile
       COMMON/Files/Model,Sumprf,Sumcur,Depfile,Flxfile
       CHARACTER*1app
       LogicalGivdtl
@@ -161,8 +161,9 @@
       Parameter(tret=1.d0/3.d0)
       LogicalHOLDFR
       LogicalLEXIST1,LEXIST2
-      Character*80Dfile,Rfile,bmfile,Nidist,swdet,balafile
-      character*160wordm(10),runname,filestr
+      Character*160Dfile,Rfile,bmfile,Nidist,swdet,balafile
+      character*160wordm(10),runname
+      character*512filestr
       integerlwordm(10),lrun,nwordm,errnum
       Character*8STRBAT
       DimensionYsave(NYdim)
