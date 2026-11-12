@@ -95,7 +95,7 @@
       COMMON/UNINV/UPI,UEI
       COMMON/UNBSTL/UR,UM,UEPRI,ULGP,ULGE,ULGV,ULGTM,ULGEST,ULGFL,ULGCAP
      *,ULGEPS
-      Character*80Opafile
+      Character*160Opafile
       real*4hptabab,hptababron,hptabsc,hpsavsc
       Common/Opsave/hpsavsc(Nfreq,14,14,Mzon/(Mzon/2)+1,6)
       Common/OpBand/TpTab(14),RhoTab(14),STab(6),Wavel(Nfreq),YATab(Nato
@@ -138,7 +138,7 @@
      *NFRUSED(Lcurdm),Lsaved
       LOGICALBEGRUN
       Common/BEGR/BEGRUN
-      CHARACTER*80Model,Sumprf,Sumcur,Depfile,Flxfile
+      CHARACTER*160Model,Sumprf,Sumcur,Depfile,Flxfile
       COMMON/Files/Model,Sumprf,Sumcur,Depfile,Flxfile
       CHARACTER*1app
       LogicalGivdtl
@@ -151,7 +151,7 @@
       CHARACTER*80STRING
       Dimensionindfr(6),indop(6)
       doubleprecisionAMi1
-      CHARACTER*3status,NFILE*80
+      CHARACTER*3status,NFILE*160
       Logicalpetread
       Datapetread/.false./
       Dataindfr/1,2,2,3,3,3/,indop/1,1,2,3,3,3/
@@ -780,7 +780,7 @@
       SUBROUTINESAVEM
       IMPLICITREAL*8(A-H,O-Z)
       INTEGERLUNIT
-      Character*80NFILE*80
+      Character*160NFILE
       PARAMETER(NVARS=3)
       PARAMETER(NFREQ=96+4)
       PARAMETER(Mzon=500)
@@ -902,7 +902,7 @@
      *NFRUSED(Lcurdm),Lsaved
       LOGICALBEGRUN
       Common/BEGR/BEGRUN
-      CHARACTER*80Model,Sumprf,Sumcur,Depfile,Flxfile
+      CHARACTER*160Model,Sumprf,Sumcur,Depfile,Flxfile
       COMMON/Files/Model,Sumprf,Sumcur,Depfile,Flxfile
       CHARACTER*1app
       LogicalGivdtl
