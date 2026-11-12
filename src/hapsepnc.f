@@ -121,7 +121,7 @@
      *NFRUSED(Lcurdm),Lsaved
       LOGICALBEGRUN
       Common/BEGR/BEGRUN
-      CHARACTER*80Model,Sumprf,Sumcur,Depfile,Flxfile
+      CHARACTER*160Model,Sumprf,Sumcur,Depfile,Flxfile
       COMMON/Files/Model,Sumprf,Sumcur,Depfile,Flxfile
       CHARACTER*1app
       LogicalGivdtl
@@ -131,7 +131,7 @@
      *ubvR,LubvI,Lyman
       COMMON/DETAIL/QRTarr(Mzon),UUarr(Mzon),ArrLum(Mzon),Acc(Mzon)
       Common/XYZ/XA,YA,URM
-      Character*80Opafile
+      Character*160Opafile
       real*4hptabab,hptababron,hptabsc,hpsavsc
       Common/Opsave/hpsavsc(Nfreq,14,14,Mzon/(Mzon/2)+1,6)
       Common/OpBand/TpTab(14),RhoTab(14),STab(6),Wavel(Nfreq),YATab(Nato
