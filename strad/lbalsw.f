@@ -219,7 +219,7 @@ C- remove this to read old flx files!
      *NFRUSED(Lcurdm),Lsaved
       LOGICALBEGRUN
       Common/BEGR/BEGRUN
-      CHARACTER*80Model,Sumprf,Sumcur,Depfile,Flxfile
+      CHARACTER*160Model,Sumprf,Sumcur,Depfile,Flxfile
       COMMON/Files/Model,Sumprf,Sumcur,Depfile,Flxfile
       CHARACTER*1app
 C- dummy var for constructing of Opafile
@@ -486,7 +486,7 @@ C- remove this to read old flx files!
      *NFRUSED(Lcurdm),Lsaved
       LOGICALBEGRUN
       Common/BEGR/BEGRUN
-      CHARACTER*80Model,Sumprf,Sumcur,Depfile,Flxfile
+      CHARACTER*160Model,Sumprf,Sumcur,Depfile,Flxfile
       COMMON/Files/Model,Sumprf,Sumcur,Depfile,Flxfile
       CHARACTER*1app
 C- dummy var for constructing of Opafile
@@ -1605,7 +1605,7 @@ C- remove this to read old flx files!
      *NFRUSED(Lcurdm),Lsaved
       LOGICALBEGRUN
       Common/BEGR/BEGRUN
-      CHARACTER*80Model,Sumprf,Sumcur,Depfile,Flxfile
+      CHARACTER*160Model,Sumprf,Sumcur,Depfile,Flxfile
       COMMON/Files/Model,Sumprf,Sumcur,Depfile,Flxfile
       CHARACTER*1app
 C- dummy var for constructing of Opafile
@@ -1626,7 +1626,7 @@ C-    Common/observer/wH(Nfreq),cH(Nfreq),zerfr;
 C-  REAL*8 BL(NFREQ),FJ(NFREQ),FH(NFREQ); -- FOR %MG:
       REAL*8Ryp(Mzon),Uyp(Mzon),Typ(Mzon),Rhop(Mzon)
 C- for primag
-      Character*80Opafile
+      Character*160Opafile
 C- Common/opabs100/opacabs100(Nfreq); -- bad if here; now in argument for subr. 'opacity"
 C- real*4 hptabab,hptabsc,hpsavsc; -- new!
       real*4hptabab,hptababron,hptabsc,hpsavsc
