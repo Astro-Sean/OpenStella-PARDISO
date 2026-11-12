@@ -1,6 +1,6 @@
       SubroutineStradIO(mode,Lunit,NFILE)
       IMPLICITREAL*8(A-H,O-Z)
-      character*80NFILE,mode*2,Status*3
+      character*160NFILE,mode*2,Status*3
       integerLunit,IOST
       LOGICALLEXIST,DUMMY
       PARAMETER(NVARS=3)
@@ -124,7 +124,7 @@
      *NFRUSED(Lcurdm),Lsaved
       LOGICALBEGRUN
       Common/BEGR/BEGRUN
-      CHARACTER*80Model,Sumprf,Sumcur,Depfile,Flxfile
+      CHARACTER*160Model,Sumprf,Sumcur,Depfile,Flxfile
       COMMON/Files/Model,Sumprf,Sumcur,Depfile,Flxfile
       CHARACTER*1app
       LogicalGivdtl
