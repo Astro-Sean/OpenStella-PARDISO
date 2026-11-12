@@ -16,10 +16,11 @@ C: *
      *0)
       real*4psploty(1000000),psplotx(1000000)
       real*4ymn,ymx,xmn,xmx,shifty,shiftx,pscale,tburst4,dummy4,answer
-      character*80filein,psfile,device,titlestr,xlabel,ylabel,PHfile,avg
-     *file,string
+      character*80filein,psfile,device,titlestr,xlabel,ylabel,string
+      character*160PHfile,avgfile
       character*(*)runname
-      character*160wordm(10),filestr
+      character*160wordm(10)
+      character*512filestr
       integerlwordm(10),lrun,nwordm,nnx,ntotx,nny
 Cinteger iplot;
 Clogical autox, autoy, ttopen, Auto(@Npictures);
@@ -28,7 +29,7 @@ C*
       logicallightcurve,connect
       logicallexist1,lexist2
       logicalBadNum
-      Character*80DFile,Rfile,Nidist
+      Character*160DFile,Rfile,Nidist
       INTEGERerrnum
 C-      @wterm  "print*,";
 C-NVARS - number of independent variables
@@ -240,7 +241,7 @@ C- remove this to read old flx files!
      *NFRUSED(Lcurdm),Lsaved
       LOGICALBEGRUN
       Common/BEGR/BEGRUN
-      CHARACTER*80Model,Sumprf,Sumcur,Depfile,Flxfile
+      CHARACTER*160Model,Sumprf,Sumcur,Depfile,Flxfile
       COMMON/Files/Model,Sumprf,Sumcur,Depfile,Flxfile
       CHARACTER*1app
 C- dummy var for constructing of Opafile
@@ -252,7 +253,7 @@ C-No. of steps & Time in days
      *ubvR,LubvI,Lyman
       COMMON/DETAIL/QRTarr(Mzon),UUarr(Mzon),ArrLum(Mzon),Acc(Mzon)
       Common/XYZ/XA,YA,URM
-      Character*80Opafile
+      Character*160Opafile
 C- Common/opabs100/opacabs100(Nfreq); -- bad if here; now in argument for subr. 'opacity"
 C- real*4 hptabab,hptabsc,hpsavsc; -- new!
       real*4hptabab,hptababron,hptabsc,hpsavsc
@@ -2548,7 +2549,7 @@ C- remove this to read old flx files!
      *NFRUSED(Lcurdm),Lsaved
       LOGICALBEGRUN
       Common/BEGR/BEGRUN
-      CHARACTER*80Model,Sumprf,Sumcur,Depfile,Flxfile
+      CHARACTER*160Model,Sumprf,Sumcur,Depfile,Flxfile
       COMMON/Files/Model,Sumprf,Sumcur,Depfile,Flxfile
       CHARACTER*1app
 C- dummy var for constructing of Opafile
