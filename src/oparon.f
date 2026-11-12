@@ -95,7 +95,7 @@
       COMMON/UNINV/UPI,UEI
       COMMON/UNBSTL/UR,UM,UEPRI,ULGP,ULGE,ULGV,ULGTM,ULGEST,ULGFL,ULGCAP
      *,ULGEPS
-      Character*80Opafile
+      Character*160Opafile
       real*4hptabab,hptababron,hptabsc,hpsavsc
       Common/Opsave/hpsavsc(Nfreq,14,14,Mzon/(Mzon/2)+1,6)
       Common/OpBand/TpTab(14),RhoTab(14),STab(6),Wavel(Nfreq),YATab(Nato
