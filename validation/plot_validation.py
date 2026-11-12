@@ -227,7 +227,9 @@ def shock_inset(ax, blocks_by_run, t, idx, scale, loc):
             iax.yaxis.set_major_formatter(
                 LogFormatterSciNotation(base=10)
             )
-            iax.yaxis.set_minor_locator(plt.NullLocator())
+            iax.yaxis.set_minor_locator(
+                LogLocator(base=10, subs="auto", numticks=12)
+            )
             iax.yaxis.set_minor_formatter(plt.NullFormatter())
         else:
             iax.set_ylim(pad_linear((lo_y, hi_y), fraction=0.05))
@@ -237,13 +239,14 @@ def shock_inset(ax, blocks_by_run, t, idx, scale, loc):
     iax.tick_params(axis="x", which="major", labelsize=6, direction="in")
     iax.tick_params(axis="x", which="minor", direction="in", length=2)
     iax.tick_params(axis="y", labelsize=6, direction="out", pad=1)
+    iax.tick_params(axis="y", which="minor", direction="out", length=2)
     iax.text(
-        0.98,
-        0.03,
+        0.02,
+        0.97,
         r"$R$ ($10^{15}$ cm)",
         transform=iax.transAxes,
-        ha="right",
-        va="bottom",
+        ha="left",
+        va="top",
         fontsize=6,
         bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.8, "pad": 0.4},
     )
