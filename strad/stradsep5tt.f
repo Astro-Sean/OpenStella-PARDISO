@@ -159,6 +159,8 @@
       Parameter(TREZON=3.D18)
       Parameter(tsmoth=4.D6)
       Parameter(tret=1.d0/3.d0)
+      Parameter(NSTL_EPS=200,NSTL_MAX=5000)
+      Parameter(STL_FAC=3.16227766D0,STL_CAP=1.D2)
       LogicalHOLDFR
       LogicalLEXIST1,LEXIST2
       Character*160Dfile,Rfile,bmfile,Nidist,swdet,balafile
@@ -693,6 +695,9 @@
       nmom=1
       TOO=TO(1)
       KO=nmom
+      EPS0=EPS
+      TDPRV=-1.D0
+      NSTL=0
 09854 IF(.NOT.(KFLAG==0.and.NSTEP<NSTMAX))GOTO09853
       doI=1,N
       Ysave(I)=Y(I,1)
@@ -719,6 +724,57 @@
 09845 CONTINUE
       tday=t*UTIME/8.64d+04
       if(NSTEP==0)t_eve=tday
+C-    Stall guard: a pathologically stiff model passes the Gear error
+C-    test only at H ~ 1e-9 d, so tday creeps ~1e-9 d per iteration and
+C-    the run burns its step budget without advancing (mc100 grid runs
+C-    died this way at td~0.01d, ~95 iterations per visible step, killed
+C-    by the NDebug Jacobian dump).  An iteration counts as frozen when
+C-    it advances less than 5e-6 d (~0.4 s of model time); healthy slow
+C-    bursts stay under ~100 consecutive frozen iterations.
+C-    Defence 1: every NSTL_EPS frozen iterations relax EPS (STCOM1, so
+C-    VTSTIF rebuilds EPSJ/E/EUP/EDN/BND on the next call) by STL_FAC up
+C-    to EPS0*STL_CAP -- the LSODE TOLSF remedy, logged, with EPS
+C-    restored to EPS0 once a healthy step lands.
+C-    Defence 2: if the stall survives NSTL_MAX consecutive frozen
+C-    iterations even at the relaxed tolerance, exit via KFLAG=-5
+C-    (falls through the dispatch at 09853 to the finish path) instead
+C-    of crawling to NSTMAX.  Armed only past td=1e-4 d so the tiny
+C-    first steps of a fresh model are not miscounted.
+      if(TDPRV<0.d0)TDPRV=tday
+      if(tday>1.d-4)then
+      if(tday-TDPRV>5.d-6)then
+      if(NSTL>=NSTL_EPS)then
+      write(*,*)' STALL-GUARD: progress resumed at td=',tday,
+     *' after',NSTL,' frozen iterations, EPS',EPS,' ->',EPS0
+      write(4,*)' STALL-GUARD: progress resumed at td=',tday,
+     *' after',NSTL,' frozen iterations, EPS',EPS,' ->',EPS0
+      endif
+      NSTL=0
+      EPS=EPS0
+      else
+      NSTL=NSTL+1
+      if(mod(NSTL,NSTL_EPS)==0.and.EPS<EPS0*STL_CAP)then
+      EPS=min(EPS*STL_FAC,EPS0*STL_CAP)
+      write(*,*)' STALL-GUARD: td frozen for',NSTL,
+     *' iterations at td=',tday,' Hu=',HUSED,' MAXER=',MAXER,
+     *' EPS ->',EPS
+      write(4,*)' STALL-GUARD: td frozen for',NSTL,
+     *' iterations at td=',tday,' Hu=',HUSED,' MAXER=',MAXER,
+     *' EPS ->',EPS
+      endif
+      if(NSTL>=NSTL_MAX)then
+      write(*,*)' STALL-GUARD: no progress for',NSTL,
+     *' iterations at td=',tday,' Hu=',HUSED,' MAXER=',MAXER,
+     *' -> KFLAG=-5 abort'
+      write(4,*)' STALL-GUARD: no progress for',NSTL,
+     *' iterations at td=',tday,' Hu=',HUSED,' MAXER=',MAXER,
+     *' -> KFLAG=-5 abort'
+      KFLAG=-5
+      GOTO09853
+      endif
+      endif
+      endif
+      TDPRV=tday
       IF(.NOT.(abs(KNadap)>=4))GOTO09842
       tdlog=log(max(tday,hmin))
       IF(.NOT.(tdlog<=stmlog(1)-(stmlog(2)-stmlog(1))/2.d0.or.tdlog>stml
