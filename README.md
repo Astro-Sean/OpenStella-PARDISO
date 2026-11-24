@@ -15,7 +15,7 @@ takes 357 min, almost all of it inside the linear solve.
 
 This build replaces Y12M with Intel MKL PARDISO through the wrapper
 `strad/pardiso_wrap.f90`. Physics, numerics, and the time integrator are
-unchanged. Only the linear solver changed.
+unchanged; only the linear solver is.
 
 | Solver | Cores | Wall time | Speedup |
 | ------ | ----- | --------- | ------- |
@@ -24,18 +24,18 @@ unchanged. Only the linear solver changed.
 | PARDISO | 2 | 92.8 min | 3.85x |
 | PARDISO | 3 | 73.3 min | 4.87x |
 
-Type IIn shell-plus-wind model, 500 zones, 60 d. Wall time is shown
-against model simulation time:
+Type IIn shell-plus-wind model, 500 zones, 60 d. Wall time versus
+model simulation time:
 
 ![Runtime versus model time](validation/validation_runtime_vs_model_time.png)
 
 ## Build
 
 `build_parallel.sh` sets up the Intel Fortran and MKL toolchain. It
-loads an available Intel module, or sources oneAPI `setvars.sh` when
-`MKLROOT` is not set. Set `STELLA_SITE=generic` to force the local
-oneAPI setup. The script uses `ifx` automatically when `ifort` is not
-installed.
+loads an Intel module when one is available, or sources oneAPI
+`setvars.sh` when `MKLROOT` is not set. Set `STELLA_SITE=generic` to
+force the local oneAPI setup. The script uses `ifx` automatically when
+`ifort` is not installed.
 
 ```bash
 bash build_parallel.sh <NZON>   # NZON = radial zone count, e.g. 500
@@ -74,10 +74,10 @@ epoch), `mymodel.tt` (15-band light curve), `mymodel.res`, `.lbol`,
 
 Worked example: see
 [docs/run_a_type_iin_model.ipynb](docs/run_a_type_iin_model.ipynb), a
-walkthrough of building the code, writing the shell-plus-wind Type IIn
-inputs, the `.hyd`/`.abn`/`.dat` field meanings, and running. It includes
-plots of the initial structure, the `.swd` structure evolution, and the
-15-band light curve.
+walkthrough of the full chain: building the code, writing the
+shell-plus-wind Type IIn inputs, what the `.hyd`/`.abn`/`.dat` fields
+mean, and running the model. It plots the initial structure, the `.swd`
+structure evolution, and the 15-band light curve.
 
 `examples/typeiin/` has a self-contained version of the validation chain:
 
@@ -111,8 +111,8 @@ X(Ca) X(Fe) X(Ni)
 ```
 
 Time is written only on the zone-1 and zone-Nzon rows of each epoch
-block; interior rows carry 0. The added columns make composition
-evolution and element tracking plots possible directly from `.swd`.
+block; interior rows carry 0. These columns let you plot composition
+evolution and element tracking straight from `.swd`.
 
 ## New photometric filters
 
@@ -144,10 +144,9 @@ about 4x faster than Y12M on one core; three cores add another 20%.
 
 Density, velocity, and gas-temperature profiles at three epochs
 (-3.8, 27.5, and 56.2 d). The curves lie on top of each other. The
-median difference is about 0.002 dex (about 0.5%), and the worst
-single-zone difference (about 0.08 dex) sits on the shock-front spike,
-where a one-zone offset on a steep gradient inflates the pointwise
-metric.
+median difference is about 0.002 dex (about 0.5%). The worst single-zone
+difference, about 0.08 dex, sits on the shock-front spike, where a
+one-zone offset on a steep gradient inflates the pointwise metric.
 
 ![Profile agreement](validation/validation_profiles.png)
 
@@ -155,8 +154,8 @@ metric.
 
 The full 15-band light curve from the 1-CPU PARDISO run has a bright
 interaction plateau near -17.5 mag sustained out to 60 d. Stock builds
-write only UBVRI; the SDSS, 2MASS, and ATLAS bands plotted here are
-written by this version only.
+write only UBVRI; this version writes the SDSS, 2MASS, and ATLAS bands
+plotted here.
 
 ![15-band light curve](validation/validation_lightcurve.png)
 
