@@ -95,9 +95,11 @@
       COMMON/UNINV/UPI,UEI
       COMMON/UNBSTL/UR,UM,UEPRI,ULGP,ULGE,ULGV,ULGTM,ULGEST,ULGFL,ULGCAP
      *,ULGEPS
-      Parameter(epsNi=3.9656224881D-02,epsCo=7.0232694190D-03,epspst=2.3
-     *346047930D-04,tNi=8.8000000000D+00,tCo=1.1130000000D+02)
-      Parameter(Positr=3.21d-2)
+c     epspst: positron kinetic channel = 3.6% of total Co-56 decay power
+c     (Milne et al. 1999); old value gave 3.2%, floor ~0.05 mag too faint
+      Parameter(epsNi=3.9656224881D-02,epsCo=7.0232694190D-03,epspst=2.6
+     *227977083D-04,tNi=8.8000000000D+00,tCo=1.1130000000D+02)
+      Parameter(Positr=3.6d-2)
       Parameter(gamfloor=-100d0)
       COMMON/ENUCOM/ENPLS,ENPAIR,ENPHO,ENURCA,ENDEP
       Common/Volanm/Ryzer,Kmcor
